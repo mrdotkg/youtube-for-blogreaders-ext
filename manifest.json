@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "version": "2.5.5",
+  "version": "3.0.0",
   "name": "YouTube for Blog Readers",
   "description": "Transform YouTube into a text-focused, blog-like reading experience - hide thumbnails, show video duration, perfect for mindful content discovery",
-  "homepage_url": "https://github.com/mrdotkg/youtube-as-journal-ext",
+  "homepage_url": "https://github.com/mrdotkg/youtube-blog-readers-ext",
   "browser_specific_settings": {
     "gecko": {
       "id": "{17c4514d-71fa-4633-8c07-1fe0b354c885}"
