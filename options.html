@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YouTube As Journal - Options</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 400px; margin: 20px; }
+      h1 { font-size: 18px; margin-bottom: 20px; }
+      .section { margin-bottom: 20px; }
+      .section h2 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+      label { display: block; margin-bottom: 6px; cursor: pointer; }
+      input[type="checkbox"] { margin-right: 8px; }
+      #status { margin-top: 20px; padding: 8px; border-radius: 4px; background: #f0f9ff; }
+    </style>
+  </head>
+
+  <body>
+    <h1>YouTube As Journal</h1>
+    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Transform YouTube into a thoughtful, journal-like reading experience</p>
+    
+    <form>
+      <div class="section">
+        <h2>Display Options</h2>
+        <label style="color: #666; cursor: not-allowed;">
+          <input type="checkbox" name="hideChannelAvatars" id="hideChannelAvatars" disabled>
+          Hide channel profile pictures (Coming Soon)
+        </label>
+      </div>
+
+      <div class="section">
+        <h2>Disable Extension On</h2>
+        <label>
+          <input type="checkbox" name="disableSearchResultPage" id="disableSearchResultPage">
+          Search results page
+        </label>
+        <label>
+          <input type="checkbox" name="disableChannelPage" id="disableChannelPage">
+          Channel pages
+        </label>
+        <label>
+          <input type="checkbox" name="disablePlaylistPage" id="disablePlaylistPage">
+          Playlist pages
+        </label>
+        <label>
+          <input type="checkbox" name="disableWatchPage" id="disableWatchPage">
+          Watch page (sidebar)
+        </label>
+        <label>
+          <input type="checkbox" name="disableSubscriptionsPage" id="disableSubscriptionsPage">
+          Subscriptions page
+        </label>
+        <label>
+          <input type="checkbox" name="disableEverywhere" id="disableEverywhere">
+          Everywhere (disable completely)
+        </label>
+      </div>
+
+      <p id="status">✅ Preferences loaded</p>
+    </form>
+    <script src="common.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
