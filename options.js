@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // Load existing settings
   const options = await loadOptions();
+  document.forms[0].hideThumbnails.checked = options.hideThumbnails || false;
   document.forms[0].hideChannelAvatars.checked = options.hideChannelAvatars || false;
   document.forms[0].showFullVideoTitles.checked = options.showFullVideoTitles || false;
   document.forms[0].disableSearchResultPage.checked = options.disabledOnPages.results;
@@ -10,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.forms[0].disablePlaylistPage.checked = options.disabledOnPages.playlist;
   document.forms[0].disableWatchPage.checked = options.disabledOnPages.watch;
   document.forms[0].disableSubscriptionsPage.checked = options.disabledOnPages.subscriptions;
+  document.forms[0].disableShortsPage.checked = options.disabledOnPages.shorts;
   document.forms[0].disableEverywhere.checked = options.disabledOnPages.everywhere;
 });
 
@@ -19,16 +21,16 @@ document.forms[0].addEventListener('change', async () => {
   status.textContent = `⏳ Saving...`
 
   await saveOptions({
+    hideThumbnails: document.forms[0].hideThumbnails.checked,
     hideChannelAvatars: document.forms[0].hideChannelAvatars.checked,
     showFullVideoTitles: document.forms[0].showFullVideoTitles.checked,
-    thumbnailMode: 'hidden', // Always hidden now, no options
-    syncSettings: false, // Removed complexity
     disabledOnPages: {
       results: document.forms[0].disableSearchResultPage.checked,
       channel: document.forms[0].disableChannelPage.checked,
       playlist: document.forms[0].disablePlaylistPage.checked,
       watch: document.forms[0].disableWatchPage.checked,
       subscriptions: document.forms[0].disableSubscriptionsPage.checked,
+      shorts: document.forms[0].disableShortsPage.checked,
       everywhere: document.forms[0].disableEverywhere.checked,
     },
   })

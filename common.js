@@ -8,13 +8,14 @@ if (typeof globalThis.browser === "undefined") {
  * @typedef {{
  *   hideChannelAvatars: boolean,
  *   showFullVideoTitles: boolean,
- *   thumbnailMode: 'hidden',
+ *   hideThumbnails: boolean,
  *   disabledOnPages: {
  *     results: boolean,
  *     channel: boolean,
  *     playlist: boolean,
  *     watch: boolean,
  *     subscriptions: boolean,
+ *     shorts: boolean,
  *     everywhere: boolean,
  *   },
  * }} Options
@@ -22,17 +23,18 @@ if (typeof globalThis.browser === "undefined") {
 
 /** @type {Options} */
 const defaultOptions = {
-  hideChannelAvatars: false,
-  showFullVideoTitles: false,
+  hideChannelAvatars: true, // Default to enabled
+  showFullVideoTitles: true, // Default to enabled
+  hideThumbnails: true, // Default to enabled
   disabledOnPages: {
     results: false,
     channel: false,
     playlist: false,
     watch: false,
     subscriptions: false,
+    shorts: true, // Disable on shorts by default
     everywhere: false,
   },
-  thumbnailMode: 'hidden', // Always hidden, no other modes
 }
 
 /**
