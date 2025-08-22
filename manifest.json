@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "version": "2.5.5",
-  "name": "YouTube As Journal",
-  "description": "Transform YouTube into a journal-like experience - full video titles with watch time, hide thumbnails for distraction-free browsing",
+  "name": "YouTube for Blog Readers",
+  "description": "Transform YouTube into a text-focused, blog-like reading experience - hide thumbnails, show video duration, perfect for mindful content discovery",
   "homepage_url": "https://github.com/mrdotkg/youtube-as-journal-ext",
   "browser_specific_settings": {
     "gecko": {

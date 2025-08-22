@@ -262,7 +262,7 @@ const updateElem = async () => {
     cssToApply += '\n' + css['hideChannelAvatars'];
   }
   
-  elem.innerHTML = `/* Injected by the YouTube As Journal extension */
+  elem.innerHTML = `/* Injected by the YouTube for Blog Readers extension */
   ${cssToApply}`;
 
   // Universal duration extraction that works across all YouTube pages
