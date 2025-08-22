@@ -567,6 +567,27 @@ const updateElem = async () => {
       findThumbnails(0);
     }
   }, 5000);
+  
+  // Scroll-based detection for newly loaded videos (infinite scroll)
+  let scrollTimeout;
+  let lastScrollCheck = 0;
+  
+  const handleScroll = () => {
+    // Throttle scroll events
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const now = Date.now();
+      // Only check once every 2 seconds during scrolling
+      if (now - lastScrollCheck > 2000 && !isProcessing) {
+        lastScrollCheck = now;
+        console.log('Scroll detected - checking for new videos');
+        findThumbnails(0);
+      }
+    }, 300); // 300ms delay after scroll stops
+  };
+  
+  // Add scroll listener
+  window.addEventListener('scroll', handleScroll, { passive: true });
 }
 
 // Update when settings are changed
