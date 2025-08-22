@@ -1,5 +1,8 @@
 /** @typedef {import("./common")} */
-
+// Before publishing
+// TODO: Get screenshots
+// TODO: Design a logo.
+// TODO: upload for verification, add chrome store link.
 const css = {
   "normal": "/* Nothing to do */",
   "hidden": `
