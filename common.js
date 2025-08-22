@@ -7,6 +7,7 @@ if (typeof globalThis.browser === "undefined") {
 /**
  * @typedef {{
  *   hideChannelAvatars: boolean,
+ *   showFullVideoTitles: boolean,
  *   thumbnailMode: 'hidden',
  *   disabledOnPages: {
  *     results: boolean,
@@ -22,6 +23,7 @@ if (typeof globalThis.browser === "undefined") {
 /** @type {Options} */
 const defaultOptions = {
   hideChannelAvatars: false,
+  showFullVideoTitles: false,
   disabledOnPages: {
     results: false,
     channel: false,

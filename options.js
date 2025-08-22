@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load existing settings
   const options = await loadOptions();
   document.forms[0].hideChannelAvatars.checked = options.hideChannelAvatars || false;
+  document.forms[0].showFullVideoTitles.checked = options.showFullVideoTitles || false;
   document.forms[0].disableSearchResultPage.checked = options.disabledOnPages.results;
   document.forms[0].disableChannelPage.checked = options.disabledOnPages.channel;
   document.forms[0].disablePlaylistPage.checked = options.disabledOnPages.playlist;
@@ -19,6 +20,7 @@ document.forms[0].addEventListener('change', async () => {
 
   await saveOptions({
     hideChannelAvatars: document.forms[0].hideChannelAvatars.checked,
+    showFullVideoTitles: document.forms[0].showFullVideoTitles.checked,
     thumbnailMode: 'hidden', // Always hidden now, no options
     syncSettings: false, // Removed complexity
     disabledOnPages: {
