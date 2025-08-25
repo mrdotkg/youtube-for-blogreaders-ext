@@ -112,6 +112,7 @@ ytm-video-thumbnail-view-model .channel-avatar,
 
 /* Additional new layout selectors */
 .yt-content-metadata-view-model-wiz__avatar,
+.yt-lockup-view-model-wiz__content-image,
 [class*="channel-avatar"],
 [class*="channelAvatar"],
 
@@ -248,77 +249,47 @@ ytd-playlist-video-renderer #progress.ytd-thumbnail-overlay-resume-playback-rend
 }`
 };
 
-// Create a unique identifier for our style element
-const EXTENSION_STYLE_ID = 'youtube-blog-readers-styles';
-
-// Function to get or create our style element
-const getStyleElement = () => {
-  // Remove any existing style elements first
-  const existingStyles = document.querySelectorAll(`#${EXTENSION_STYLE_ID}`);
-  existingStyles.forEach(el => el.remove());
-  
-  // Create fresh style element
-  const elem = document.createElement("style");
-  elem.id = EXTENSION_STYLE_ID;
-  document.documentElement.appendChild(elem);
-  return elem;
-};
+const elem = document.createElement("style");
+document.documentElement.appendChild(elem);
 
 const updateElem = async () => {
   const options = await loadOptions()
-  
-  console.log('YouTube for Blog Readers - Options loaded:', {
-    hideThumbnails: options.hideThumbnails,
-    hideChannelAvatars: options.hideChannelAvatars,
-    showFullVideoTitles: options.showFullVideoTitles
-  });
 
   // Check if current channel is blocked
   const isChannelBlocked = isCurrentChannelBlocked(options.blockedChannels);
 
-  // Enhanced page detection with home page support
-  const currentPath = window.location.pathname;
-  const isHomePage = currentPath === '/' || currentPath === '';
-  
   const isDisabled = options.disabledOnPages.everywhere
     || isChannelBlocked // Disable on blocked channels
-    || (options.disabledOnPages.home && isHomePage)
-    || (options.disabledOnPages.results && currentPath === '/results')
-    || (options.disabledOnPages.channel && currentPath.startsWith('/@'))
-    || (options.disabledOnPages.playlist && currentPath === '/playlist')
-    || (options.disabledOnPages.watch && currentPath === '/watch')
-    || (options.disabledOnPages.subscriptions && currentPath === '/feed/subscriptions')
-    || (options.disabledOnPages.shorts && (currentPath === '/feed/subscriptions/shorts' || currentPath.startsWith('/shorts')));
+    || (options.disabledOnPages.results && window.location.pathname === '/results')
+    || (options.disabledOnPages.channel && window.location.pathname.startsWith('/@'))
+    || (options.disabledOnPages.playlist && window.location.pathname === '/playlist')
+    || (options.disabledOnPages.watch && window.location.pathname === '/watch')
+    || (options.disabledOnPages.subscriptions && window.location.pathname === '/feed/subscriptions')
+    || (options.disabledOnPages.shorts && (window.location.pathname === '/feed/subscriptions/shorts' || window.location.pathname.startsWith('/shorts')));
 
-  console.log('YouTube for Blog Readers - isDisabled:', isDisabled);
-
-  // SIMPLE APPROACH: Just remove and recreate the style element
-  const existingStyle = document.querySelector(`#${EXTENSION_STYLE_ID}`);
-  if (existingStyle) {
-    existingStyle.remove();
-  }
-  
-  // Only add CSS if features are enabled and not disabled
+  // Apply CSS features
   let cssToApply = '';
   
+  // Thumbnail hiding feature
   if (options.hideThumbnails && !isDisabled) {
-    console.log('YouTube for Blog Readers - Adding thumbnail hiding CSS');
     cssToApply += css['hideThumbnails'];
   }
   
+  // Show full video titles feature
   if (options.showFullVideoTitles && !isDisabled) {
-    console.log('YouTube for Blog Readers - Adding full video titles CSS');
     cssToApply += '\n' + css['showFullVideoTitles'];
   }
   
+  // Channel avatar hiding feature
   if (options.hideChannelAvatars && !isDisabled) {
-    console.log('YouTube for Blog Readers - Adding channel avatar hiding CSS');
     cssToApply += '\n' + css['hideChannelAvatars'];
   }
   
   // Add per-video blocking for blocked channels on listing pages
   if (options.blockedChannels && options.blockedChannels.length > 0 && !isDisabled) {
+    // Create selectors for blocked channel videos
     const blockedChannelSelectors = options.blockedChannels.map(channel => {
+      // Handle different channel URL formats
       const escapedChannel = channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return [
         'a[href*="/' + escapedChannel + '"]',
@@ -326,6 +297,7 @@ const updateElem = async () => {
       ].join(', ');
     }).join(', ');
     
+    // Apply styles to hide videos from blocked channels on listing pages
     cssToApply += '\n/* Hide videos from blocked channels on listing pages */\n' +
       'ytd-rich-item-renderer:has(' + blockedChannelSelectors + '),\n' +
       'ytd-grid-video-renderer:has(' + blockedChannelSelectors + '),\n' +
@@ -336,280 +308,8 @@ const updateElem = async () => {
       '}';
   }
   
-  // Apply CSS only if there's something to apply
-  if (cssToApply.trim()) {
-    const elem = document.createElement("style");
-    elem.id = EXTENSION_STYLE_ID;
-    elem.innerHTML = `/* Injected by the YouTube for Blog Readers extension */\n${cssToApply}`;
-    document.documentElement.appendChild(elem);
-    console.log('YouTube for Blog Readers - CSS applied');
-  } else {
-    console.log('YouTube for Blog Readers - No CSS applied (all features disabled)');
-  }
-
-// Manual functions for debugging (can be called from browser console)
-window.ytBlogReadersDebug = {
-  clearAllStyles: () => {
-    const styles = document.querySelectorAll(`#${EXTENSION_STYLE_ID}, style`);
-    styles.forEach(style => {
-      if (style.innerHTML && style.innerHTML.includes('YouTube for Blog Readers')) {
-        console.log('Removing extension style element:', style);
-        style.remove();
-      }
-    });
-    console.log('All YouTube for Blog Readers styles cleared');
-  },
-  
-  getCurrentOptions: async () => {
-    const options = await loadOptions();
-    console.log('Current options:', options);
-    return options;
-  },
-  
-  forceUpdate: () => {
-    console.log('Forcing extension update...');
-    updateElem();
-  },
-  
-  forceUpdateWithClear: async () => {
-    console.log('Forcing complete reset...');
-    ytBlogReadersDebug.clearAllStyles();
-    setTimeout(() => updateElem(), 100);
-  },
-  
-  testStorageDirectly: async () => {
-    const rawStorage = await new Promise(resolve => {
-      browser.storage.local.get(null, resolve);
-    });
-    console.log('Raw storage contents:', rawStorage);
-    return rawStorage;
-  },
-  
-  testOptionToggle: async () => {
-    console.log('=== TESTING OPTION TOGGLE ===');
-    
-    // Check current storage
-    const currentStorage = await new Promise(resolve => {
-      browser.storage.local.get(null, resolve);
-    });
-    console.log('1. Current storage before toggle:', currentStorage);
-    console.log('   hideThumbnails in storage:', currentStorage.hideThumbnails, typeof currentStorage.hideThumbnails);
-    
-    // Check loaded options
-    const currentOptions = await loadOptions();
-    console.log('2. Current loaded options:', currentOptions);
-    console.log('   hideThumbnails loaded:', currentOptions.hideThumbnails, typeof currentOptions.hideThumbnails);
-    
-    // Force set to false and test
-    console.log('3. Setting hideThumbnails to false...');
-    await new Promise(resolve => {
-      browser.storage.local.set({ hideThumbnails: false }, resolve);
-    });
-    
-    // Verify it was saved
-    const afterSave = await new Promise(resolve => {
-      browser.storage.local.get(null, resolve);
-    });
-    console.log('4. Storage after setting to false:', afterSave);
-    console.log('   hideThumbnails after save:', afterSave.hideThumbnails, typeof afterSave.hideThumbnails);
-    
-    console.log('5. Forcing extension update...');
-    setTimeout(() => {
-      ytBlogReadersDebug.forceUpdate();
-    }, 100);
-  },
-  
-  testThumbnailOption: async () => {
-    console.log('=== THUMBNAIL OPTION TEST ===');
-    const options = await loadOptions();
-    console.log('hideThumbnails value:', options.hideThumbnails);
-    console.log('hideThumbnails type:', typeof options.hideThumbnails);
-    console.log('hideThumbnails === true:', options.hideThumbnails === true);
-    console.log('hideThumbnails === false:', options.hideThumbnails === false);
-    
-    return options.hideThumbnails;
-  },
-  
-  forceShowThumbnails: () => {
-    console.log('Force showing all thumbnails...');
-    
-    // Remove all extension styles
-    ytBlogReadersDebug.clearAllStyles();
-    
-    // Add aggressive CSS to force show thumbnails
-    const forceShowStyle = document.createElement('style');
-    forceShowStyle.id = 'force-show-thumbnails';
-    forceShowStyle.innerHTML = `
-      /* NUCLEAR OPTION - FORCE SHOW ALL THUMBNAILS */
-      ytd-thumbnail, 
-      ytd-playlist-thumbnail, 
-      .rich-thumbnail, 
-      .ytd-playlist-header-renderer.thumbnail-wrapper, 
-      #thumbnail, 
-      #video-preview, 
-      ytm-media-item .media-item-thumbnail-container, 
-      ytm-reel-item-renderer .video-thumbnail-container-vertical, 
-      ytm-playlist-video-renderer .compact-media-item-image, 
-      .ytp-videowall-still-image, 
-      .shortsLockupViewModelHostThumbnailContainer, 
-      .yt-lockup-view-model-wiz__content-image, 
-      #thumbnail-container, 
-      #text-image-container, 
-      .page-header-view-model-wiz__page-header-headline-image-hero-container, 
-      .yt-mini-game-card-view-model__thumbnail-wrapper, 
-      .ytd-display-ad-renderer #media-container, 
-      .ytwCompactLandscapeNoButtonLayoutViewModelHostImageHoverOverlayContainer, 
-      #card-thumbnail,
-      ytd-thumbnail img,
-      ytd-playlist-thumbnail img,
-      .rich-thumbnail img,
-      #thumbnail img,
-      #video-preview img,
-      .yt-lockup-view-model-wiz__content-image img,
-      #thumbnail-container img,
-      #card-thumbnail img {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        height: auto !important;
-        width: auto !important;
-        max-height: none !important;
-        max-width: none !important;
-        min-height: auto !important;
-        min-width: auto !important;
-        overflow: visible !important;
-        clip: auto !important;
-        clip-path: none !important;
-        transform: none !important;
-        position: relative !important;
-        left: auto !important;
-        top: auto !important;
-        right: auto !important;
-        bottom: auto !important;
-        margin: initial !important;
-        padding: initial !important;
-        border: none !important;
-        outline: none !important;
-        filter: none !important;
-        backdrop-filter: none !important;
-        mask: none !important;
-        -webkit-mask: none !important;
-      }
-      
-      /* Reset any spacing adjustments */
-      ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-      }
-      
-      .yt-lockup-view-model-wiz, yt-lockup-view-model {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-      }
-      
-      ytd-rich-grid-media {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-      }
-      
-      /* Override inline styles */
-      [style*="display: none"],
-      [style*="visibility: hidden"],
-      [style*="opacity: 0"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-      }
-    `;
-    document.head.appendChild(forceShowStyle);
-    console.log('Nuclear force show thumbnails CSS applied');
-  },
-  
-  removeForcedStyles: () => {
-    const forceStyle = document.querySelector('#force-show-thumbnails');
-    if (forceStyle) {
-      forceStyle.remove();
-      console.log('Removed forced thumbnail styles');
-    }
-  },
-  
-  showCurrentCSS: () => {
-    const styleEl = document.querySelector(`#${EXTENSION_STYLE_ID}`);
-    if (styleEl) {
-      console.log('Current CSS:', styleEl.innerHTML);
-    } else {
-      console.log('No extension style element found');
-    }
-  },
-  
-  fullDiagnostic: async () => {
-    console.log('=== FULL DIAGNOSTIC ===');
-    
-    // 1. Check raw storage
-    const rawStorage = await new Promise(resolve => {
-      browser.storage.local.get(null, resolve);
-    });
-    console.log('1. Raw storage:', rawStorage);
-    
-    // 2. Check loaded options
-    const options = await loadOptions();
-    console.log('2. Loaded options:', options);
-    
-    // 3. Check CSS element
-    const styleEl = document.querySelector(`#${EXTENSION_STYLE_ID}`);
-    console.log('3. Style element exists:', !!styleEl);
-    if (styleEl) {
-      console.log('   Style element content length:', styleEl.innerHTML.length);
-      console.log('   Contains thumbnail hiding CSS:', styleEl.innerHTML.includes('display: none !important'));
-      console.log('   Contains force show CSS:', styleEl.innerHTML.includes('display: block !important'));
-    }
-    
-    // 4. Check actual thumbnail visibility
-    const thumbnails = document.querySelectorAll('ytd-thumbnail, #thumbnail');
-    console.log('4. Found', thumbnails.length, 'thumbnail elements');
-    if (thumbnails.length > 0) {
-      const firstThumb = thumbnails[0];
-      const computedStyle = window.getComputedStyle(firstThumb);
-      console.log('   First thumbnail display:', computedStyle.display);
-      console.log('   First thumbnail visibility:', computedStyle.visibility);
-      console.log('   First thumbnail opacity:', computedStyle.opacity);
-    }
-    
-    // 5. Test storage listener
-    console.log('5. Testing storage change...');
-    const currentHideValue = options.hideThumbnails;
-    const newValue = !currentHideValue;
-    console.log('   Changing hideThumbnails from', currentHideValue, 'to', newValue);
-    
-    await new Promise(resolve => {
-      browser.storage.local.set({ hideThumbnails: newValue }, resolve);
-    });
-    
-    // Wait a bit and check again
-    setTimeout(async () => {
-      const updatedOptions = await loadOptions();
-      console.log('6. After storage change - hideThumbnails is now:', updatedOptions.hideThumbnails);
-      
-      const styleElAfter = document.querySelector(`#${EXTENSION_STYLE_ID}`);
-      if (styleElAfter) {
-        console.log('   CSS updated? Length changed from', styleEl?.innerHTML.length || 0, 'to', styleElAfter.innerHTML.length);
-        console.log('   Now contains hiding CSS:', styleElAfter.innerHTML.includes('display: none !important'));
-        console.log('   Now contains show CSS:', styleElAfter.innerHTML.includes('display: block !important'));
-      }
-      
-      // Change back to original value
-      setTimeout(() => {
-        browser.storage.local.set({ hideThumbnails: currentHideValue });
-      }, 1000);
-    }, 500);
-  }
-};
+  elem.innerHTML = `/* Injected by the YouTube for Blog Readers extension */
+  ${cssToApply}`;
 
   // Universal duration extraction that works across all YouTube pages
   // Only extract and show duration when thumbnails are hidden OR when the option allows it
@@ -948,24 +648,16 @@ window.ytBlogReadersDebug = {
 }
 
 // Update when settings are changed
-browser.storage.onChanged.addListener((changes, areaName) => {
-  console.log('YouTube for Blog Readers - Settings changed, updating...');
-  updateElem();
-})
+browser.storage.onChanged.addListener(updateElem)
 
 // Update when moving page
 let lastPathname = window.location.pathname;
 setInterval(() => {
   if (lastPathname !== window.location.pathname) {
     lastPathname = window.location.pathname
-    console.log('Inject.js - Page navigation detected:', lastPathname);
     updateElem();
   }
 }, 200);
 
 // Initialize on load
-(async () => {
-  console.log('YouTube for Blog Readers - Extension initializing...');
-  await updateElem();
-  console.log('YouTube for Blog Readers - Extension ready');
-})();
+updateElem()

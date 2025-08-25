@@ -1,7 +1,7 @@
 {
   "name": "youtube-blog-readers",
   "version": "3.0.0",
-  "description": "YouTube for Blog Readers extension",
+  "description": "YouTube for Blog Readers extension with channel blocking",
   "scripts": {
     "build": "npm run package",
     "package": "npm run clean && npm run zip",
