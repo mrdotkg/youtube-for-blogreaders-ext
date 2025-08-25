@@ -5,19 +5,28 @@
     <meta charset="utf-8" />
     <title>YouTube for Blog Readers - Options</title>
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 400px; margin: 20px; }
-      h1 { font-size: 18px; margin-bottom: 20px; }
-      .section { margin-bottom: 20px; }
+      body { 
+        font-family: system-ui, sans-serif; 
+        width: 380px; 
+        min-height: 400px;
+        max-height: 600px; 
+        margin: 16px; 
+        overflow-y: auto; 
+      }
+      h1 { font-size: 18px; margin-bottom: 16px; }
+      .section { margin-bottom: 16px; }
       .section h2 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-      label { display: block; margin-bottom: 6px; cursor: pointer; }
+      label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 13px; }
       input[type="checkbox"] { margin-right: 8px; }
-      #status { margin-top: 20px; padding: 8px; border-radius: 4px; background: #f0f9ff; }
+      textarea { font-size: 11px; }
+      p { font-size: 12px; margin-bottom: 12px; }
+      #status { margin-top: 16px; padding: 6px; border-radius: 4px; background: #f0f9ff; font-size: 12px; }
     </style>
   </head>
 
   <body>
     <h1>YouTube for Blog Readers</h1>
-    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Transform YouTube into a text-focused, blog-like reading experience for mindful content discovery</p>
+    <p style="color: #666; font-size: 12px; margin-bottom: 12px;">Transform YouTube into a text-focused, blog-like reading experience for mindful content discovery</p>
     
     <form>
       <div class="section">
@@ -33,10 +42,6 @@
         <label>
           <input type="checkbox" name="showFullVideoTitles" id="showFullVideoTitles">
           Show full video titles
-        </label>
-        <label>
-          <input type="checkbox" name="hideDurationWhenThumbnailsAllowed" id="hideDurationWhenThumbnailsAllowed">
-          Hide video duration when thumbnails are shown
         </label>
       </div>
 

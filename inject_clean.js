@@ -105,43 +105,37 @@ ytd-video-owner-renderer.ytd-watch-metadata ytd-channel-avatar,
 }`,
 
   "showFullVideoTitles": `
-/* Show full video titles with maximum specificity */
-html body #video-title,
-html body ytd-rich-item-renderer #video-title,
-html body ytd-rich-grid-renderer #video-title,
-html body ytd-rich-grid-media #video-title,
-html body ytd-grid-video-renderer #video-title,
-html body ytd-video-renderer #video-title,
-html body ytd-compact-video-renderer #video-title,
-html body yt-lockup-view-model h3,
-html body yt-lockup-view-model .yt-core-attributed-string,
-html body .yt-lockup-view-model-wiz h3,
-html body .yt-lockup-view-model-wiz .yt-core-attributed-string,
-html body [id*="video-title"],
-html body [class*="video-title"],
-html body a[href*="/watch"] h3,
-html body a[href*="/watch"] span[role="text"] {
-  max-height: none !important;
-  -webkit-line-clamp: none !important;
+#video-title.yt-simple-endpoint.ytd-grid-video-renderer,
+#video-title.ytd-compact-video-renderer,
+ytd-compact-video-renderer.use-ellipsis #video-title.ytd-compact-video-renderer,
+#video-title.ytd-video-renderer,
+#metadata-line.ytd-grid-video-renderer,
+.ytp-videowall-still-info-title,
+#video-title.ytd-playlist-panel-video-renderer,
+#video-title.ytd-rich-grid-video-renderer,
+#video-title.ytd-rich-grid-media,
+h4.ytd-macro-markers-list-item-renderer {
+  max-height: unset !important;
+  -webkit-line-clamp: unset !important;
   word-wrap: break-word !important;
-  line-height: 1.4 !important;
-  overflow: visible !important;
-  white-space: normal !important;
-  text-overflow: clip !important;
-  display: block !important;
-  height: auto !important;
-  min-height: auto !important;
-  max-width: none !important;
-  width: auto !important;
+  line-height: 2rem !important;
+  overflow: unset !important;
+}
+
+.ytp-videowall-still-info-content {
+  background-image: linear-gradient(to bottom,rgba(12,12,12,0.8) 0,transparent 200px) !important;
+}
+
+ytd-playlist-video-renderer #progress.ytd-thumbnail-overlay-resume-playback-renderer::before {
+  top: -66px;
+  font-size: 9px;
 }`
 };
 
 const EXTENSION_STYLE_ID = 'youtube-blog-readers-styles';
 
 const updateElem = async () => {
-  console.log('YouTube for Blog Readers - updateElem called');
   const options = await loadOptions();
-  console.log('YouTube for Blog Readers - Current options:', options);
   
   // Check if current channel is blocked
   const isChannelBlocked = isCurrentChannelBlocked(options.blockedChannels);
@@ -161,7 +155,8 @@ const updateElem = async () => {
     || (options.disabledOnPages.shorts && (currentPath === '/feed/subscriptions/shorts' || currentPath.startsWith('/shorts')));
 
   // Remove existing styles
-  document.querySelectorAll(`[id^="${EXTENSION_STYLE_ID}"]`).forEach(el => el.remove());
+  const existingStyle = document.querySelector(`#${EXTENSION_STYLE_ID}`);
+  if (existingStyle) existingStyle.remove();
   
   // Build CSS
   let cssToApply = '';
@@ -196,18 +191,14 @@ const updateElem = async () => {
   
   // Apply CSS if needed
   if (cssToApply.trim()) {
-    console.log('YouTube for Blog Readers - Applying CSS:', cssToApply.substring(0, 200) + '...');
     const elem = document.createElement("style");
     elem.id = EXTENSION_STYLE_ID;
     elem.innerHTML = `/* YouTube for Blog Readers */\n${cssToApply}`;
     document.documentElement.appendChild(elem);
-    console.log('YouTube for Blog Readers - CSS applied successfully');
-  } else {
-    console.log('YouTube for Blog Readers - No CSS to apply');
   }
 
-  // Duration extraction - always show durations when thumbnails are hidden
-  if (options.hideThumbnails && !isDisabled) {
+  // Duration extraction
+  if ((options.hideThumbnails || !options.hideDurationWhenThumbnailsAllowed) && !isDisabled) {
     setTimeout(() => extractDurations(), 2000);
   }
 };
@@ -256,16 +247,7 @@ const extractDurations = () => {
 };
 
 // Update when settings change
-browser.storage.onChanged.addListener((changes, area) => {
-  console.log('YouTube for Blog Readers - Storage changed:', changes, 'in area:', area);
-  updateElem();
-});
-
-// Also listen to local storage specifically
-browser.storage.local.onChanged.addListener((changes) => {
-  console.log('YouTube for Blog Readers - Local storage changed:', changes);
-  updateElem();
-});
+browser.storage.onChanged.addListener(() => updateElem());
 
 // Update on page navigation
 let lastPathname = window.location.pathname;

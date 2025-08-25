@@ -27,9 +27,9 @@
       "run_at": "document_start"
     }
   ],
-  "options_ui": {
-    "page": "options.html",
-    "browser_style": true
+  "action": {
+    "default_popup": "options.html",
+    "default_title": "YouTube for Blog Readers"
   },
   "permissions": [
     "storage",

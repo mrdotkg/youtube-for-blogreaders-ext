@@ -10,7 +10,6 @@ if (typeof globalThis.browser === "undefined") {
  *   showFullVideoTitles: boolean,
  *   hideThumbnails: boolean,
  *   blockedChannels: string[],
- *   hideDurationWhenThumbnailsAllowed: boolean,
  *   disabledOnPages: {
  *     home: boolean,
  *     results: boolean,
@@ -30,7 +29,6 @@ const defaultOptions = {
   showFullVideoTitles: true, // Default to enabled
   hideThumbnails: true, // Default to enabled
   blockedChannels: [], // Array of channel handles/IDs where extension is disabled
-  hideDurationWhenThumbnailsAllowed: true, // Default to enabled - hide durations when thumbnails are shown
   disabledOnPages: {
     home: false,
     results: false,
@@ -61,7 +59,6 @@ const loadOptions = async () => {
     showFullVideoTitles: storedOptions.showFullVideoTitles !== undefined ? storedOptions.showFullVideoTitles : defaultOptions.showFullVideoTitles,
     hideThumbnails: storedOptions.hideThumbnails !== undefined ? storedOptions.hideThumbnails : defaultOptions.hideThumbnails,
     blockedChannels: storedOptions.blockedChannels || defaultOptions.blockedChannels,
-    hideDurationWhenThumbnailsAllowed: storedOptions.hideDurationWhenThumbnailsAllowed !== undefined ? storedOptions.hideDurationWhenThumbnailsAllowed : defaultOptions.hideDurationWhenThumbnailsAllowed,
     disabledOnPages: {
       home: storedOptions.disabledOnPages?.home !== undefined ? storedOptions.disabledOnPages.home : defaultOptions.disabledOnPages.home,
       results: storedOptions.disabledOnPages?.results !== undefined ? storedOptions.disabledOnPages.results : defaultOptions.disabledOnPages.results,
