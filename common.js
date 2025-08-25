@@ -9,6 +9,7 @@ if (typeof globalThis.browser === "undefined") {
  *   hideChannelAvatars: boolean,
  *   showFullVideoTitles: boolean,
  *   hideThumbnails: boolean,
+ *   showWatchProgress: boolean,
  *   blockedChannels: string[],
  *   disabledOnPages: {
  *     home: boolean,
@@ -28,6 +29,7 @@ const defaultOptions = {
   hideChannelAvatars: true, // Default to enabled
   showFullVideoTitles: true, // Default to enabled
   hideThumbnails: true, // Default to enabled
+  showWatchProgress: true, // Default to enabled - show watch progress
   blockedChannels: [], // Array of channel handles/IDs where extension is disabled
   disabledOnPages: {
     home: false,
@@ -58,6 +60,7 @@ const loadOptions = async () => {
     hideChannelAvatars: storedOptions.hideChannelAvatars !== undefined ? storedOptions.hideChannelAvatars : defaultOptions.hideChannelAvatars,
     showFullVideoTitles: storedOptions.showFullVideoTitles !== undefined ? storedOptions.showFullVideoTitles : defaultOptions.showFullVideoTitles,
     hideThumbnails: storedOptions.hideThumbnails !== undefined ? storedOptions.hideThumbnails : defaultOptions.hideThumbnails,
+    showWatchProgress: storedOptions.showWatchProgress !== undefined ? storedOptions.showWatchProgress : defaultOptions.showWatchProgress,
     blockedChannels: storedOptions.blockedChannels || defaultOptions.blockedChannels,
     disabledOnPages: {
       home: storedOptions.disabledOnPages?.home !== undefined ? storedOptions.disabledOnPages.home : defaultOptions.disabledOnPages.home,

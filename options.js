@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.forms[0].hideThumbnails.checked = options.hideThumbnails !== false; // More explicit boolean check
   document.forms[0].hideChannelAvatars.checked = options.hideChannelAvatars || false;
   document.forms[0].showFullVideoTitles.checked = options.showFullVideoTitles || false;
+  document.forms[0].showWatchProgress.checked = options.showWatchProgress || false;
   document.forms[0].blockedChannels.value = (options.blockedChannels || []).join('\n');
   document.forms[0].disableHomePage.checked = options.disabledOnPages.home;
   document.forms[0].disableSearchResultPage.checked = options.disabledOnPages.results;
@@ -122,6 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       hideThumbnails: document.forms[0].hideThumbnails.checked,
       hideChannelAvatars: document.forms[0].hideChannelAvatars.checked,
       showFullVideoTitles: document.forms[0].showFullVideoTitles.checked,
+      showWatchProgress: document.forms[0].showWatchProgress.checked,
       blockedChannels: blockedChannels,
       disabledOnPages: {
         home: document.forms[0].disableHomePage.checked,

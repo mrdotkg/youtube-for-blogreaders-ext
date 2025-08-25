@@ -133,7 +133,38 @@ html body a[href*="/watch"] span[role="text"] {
   min-height: auto !important;
   max-width: none !important;
   width: auto !important;
-}`
+}`,
+
+  "watchProgressBar": `
+/* Watch progress bar styles */
+.ybr-progress-bar {
+  width: 100%;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 6px 0 2px 0;
+  overflow: hidden;
+}
+
+.ybr-progress-fill {
+  height: 100%;
+  background-color: #ff0000;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.ybr-progress-text {
+  font-size: 11px;
+  color: var(--yt-spec-text-secondary);
+  margin: 2px 0;
+  font-weight: 500;
+}
+
+/* Position progress info appropriately */
+.ybr-progress-container {
+  margin: 4px 0;
+}
+`
 };
 
 const EXTENSION_STYLE_ID = 'youtube-blog-readers-styles';
@@ -178,6 +209,16 @@ const updateElem = async () => {
     cssToApply += '\n' + css['hideChannelAvatars'];
   }
   
+  // Add watch progress styles when needed
+  if (options.showWatchProgress && !isDisabled) {
+    cssToApply += '\n' + css['watchProgressBar'];
+  }
+  
+  // Hide duration and progress when thumbnails are NOT hidden (i.e., when thumbnails are visible)
+  if (!options.hideThumbnails && !isDisabled) {
+    cssToApply += '\n/* Hide duration and progress when thumbnails are visible */\n.duration-added,\n.ybr-progress-container {\n  display: none !important;\n}';
+  }
+  
   // Add channel blocking CSS
   if (options.blockedChannels && options.blockedChannels.length > 0 && !isDisabled) {
     const blockedChannelSelectors = options.blockedChannels.map(channel => {
@@ -208,11 +249,19 @@ const updateElem = async () => {
 
   // Duration extraction - always show durations when thumbnails are hidden
   if (options.hideThumbnails && !isDisabled) {
-    setTimeout(() => extractDurations(), 2000);
+    setTimeout(() => extractDurations(options), 1000);
+    setTimeout(() => extractDurations(options), 3000);
+  }
+  
+  // Watch progress extraction - show progress when option is enabled
+  if (options.showWatchProgress && !isDisabled) {
+    setTimeout(() => extractWatchProgress(), 1000);
+    setTimeout(() => extractWatchProgress(), 3000);
+    setTimeout(() => extractWatchProgress(), 5000);
   }
 };
 
-const extractDurations = () => {
+const extractDurations = (options) => {
   const thumbnails = document.querySelectorAll('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model');
   
   thumbnails.forEach((thumbnail) => {
@@ -255,6 +304,69 @@ const extractDurations = () => {
   });
 };
 
+const extractWatchProgress = () => {
+  const thumbnails = document.querySelectorAll('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model');
+  
+  thumbnails.forEach((thumbnail) => {
+    if (thumbnail.querySelector('.ybr-progress-container')) return;
+    
+    // Look for YouTube's built-in progress indicator with multiple possible selectors
+    const progressSelectors = [
+      'ytd-thumbnail-overlay-resume-playback-renderer #progress',
+      '.ytd-thumbnail-overlay-resume-playback-renderer #progress',
+      '[id="progress"]',
+      '.style-scope.ytd-thumbnail-overlay-resume-playback-renderer[style*="width"]'
+    ];
+    
+    let progressElement = null;
+    let progressPercent = 0;
+    
+    // Try each selector until we find one
+    for (const selector of progressSelectors) {
+      progressElement = thumbnail.querySelector(selector);
+      if (progressElement) {
+        // Extract the width percentage from the style attribute
+        const style = progressElement.getAttribute('style') || '';
+        const widthMatch = style.match(/width:\s*(\d+(?:\.\d+)?)%/);
+        if (widthMatch) {
+          progressPercent = parseFloat(widthMatch[1]);
+          break;
+        }
+      }
+    }
+    
+    // If no progress element found, skip
+    if (!progressElement || progressPercent === 0) return;
+    
+    // Only show progress if it's meaningful (more than 2%)
+    // Include fully watched videos (100%) as they're important to show
+    if (progressPercent < 2) return;
+    
+    // Find where to insert the progress indicator
+    const titleContainer = thumbnail.querySelector('#video-title, h3, .yt-lockup-view-model-wiz__content-text');
+    if (!titleContainer) return;
+    
+    // Create progress container
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'ybr-progress-container';
+    
+    // Create progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className = 'ybr-progress-bar';
+    
+    const progressFill = document.createElement('div');
+    progressFill.className = 'ybr-progress-fill';
+    progressFill.style.width = `${progressPercent}%`;
+    
+    progressBar.appendChild(progressFill);
+    
+    progressContainer.appendChild(progressBar);
+    
+    // Insert after title
+    titleContainer.parentNode.insertBefore(progressContainer, titleContainer.nextSibling);
+  });
+};
+
 // Update when settings change
 browser.storage.onChanged.addListener((changes, area) => {
   console.log('YouTube for Blog Readers - Storage changed:', changes, 'in area:', area);
@@ -278,3 +390,58 @@ setInterval(() => {
 
 // Initialize
 updateElem();
+
+// Set up a MutationObserver to handle dynamic content loading
+const observer = new MutationObserver((mutations) => {
+  let shouldUpdate = false;
+  
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // Check if new video items were added
+          if (node.matches && (
+            node.matches('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model') ||
+            node.querySelector('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model')
+          )) {
+            shouldUpdate = true;
+            break;
+          }
+        }
+      }
+    }
+  });
+  
+  if (shouldUpdate) {
+    setTimeout(async () => {
+      const options = await loadOptions();
+      const isChannelBlocked = isCurrentChannelBlocked(options.blockedChannels);
+      const currentPath = window.location.pathname;
+      const isHomePage = currentPath === '/' || currentPath === '';
+      
+      const isDisabled = options.disabledOnPages.everywhere
+        || isChannelBlocked
+        || (options.disabledOnPages.home && isHomePage)
+        || (options.disabledOnPages.results && currentPath === '/results')
+        || (options.disabledOnPages.channel && currentPath.startsWith('/@'))
+        || (options.disabledOnPages.playlist && currentPath === '/playlist')
+        || (options.disabledOnPages.watch && currentPath === '/watch')
+        || (options.disabledOnPages.subscriptions && currentPath === '/feed/subscriptions')
+        || (options.disabledOnPages.shorts && (currentPath === '/feed/subscriptions/shorts' || currentPath.startsWith('/shorts')));
+
+      if (options.hideThumbnails && !isDisabled) {
+        extractDurations(options);
+      }
+      
+      if (options.showWatchProgress && !isDisabled) {
+        extractWatchProgress();
+      }
+    }, 500);
+  }
+});
+
+// Start observing
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
