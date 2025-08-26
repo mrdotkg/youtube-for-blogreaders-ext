@@ -1,111 +1,127 @@
 <!DOCTYPE html>
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>YouTube for Blog Readers - Options</title>
-    <style>
-      body { 
-        font-family: system-ui, sans-serif; 
-        width: 380px; 
-        min-height: 400px;
-        max-height: 600px; 
-        margin: 16px; 
-        overflow-y: auto; 
-      }
-      h1 { font-size: 18px; margin-bottom: 16px; }
-      .section { margin-bottom: 16px; }
-      .section h2 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-      label { display: block; margin-bottom: 6px; cursor: pointer; font-size: 13px; }
-      input[type="checkbox"] { margin-right: 8px; }
-      textarea { font-size: 11px; }
-      p { font-size: 12px; margin-bottom: 12px; }
-      #status { margin-top: 16px; padding: 6px; border-radius: 4px; background: #f0f9ff; font-size: 12px; }
-    </style>
-  </head>
-
   <body>
-    <h1>YouTube for Blog Readers</h1>
-    <p style="color: #666; font-size: 12px; margin-bottom: 12px;">Transform YouTube into a text-focused, blog-like reading experience for mindful content discovery</p>
-    
-    <form>
-      <div class="section">
-        <h2>Display Options</h2>
-        <label>
-          <input type="checkbox" name="hideThumbnails" id="hideThumbnails">
-          Hide video thumbnails
-        </label>
-        <label>
-          <input type="checkbox" name="hideChannelAvatars" id="hideChannelAvatars">
-          Hide channel profile pictures
-        </label>
-        <label>
-          <input type="checkbox" name="showFullVideoTitles" id="showFullVideoTitles">
-          Show full video titles
-        </label>
-        <label>
-          <input type="checkbox" name="showWatchProgress" id="showWatchProgress">
-          Show watch progress indicator
-        </label>
-      </div>
-
-      <div class="section">
-        <h2>Channel Blocking</h2>
-        <p style="color: #666; font-size: 12px; margin-bottom: 10px;">
-          Disable extension features on specific channels. Enter channel handles (@username) or channel URLs, one per line.
-        </p>
-        <textarea 
-          name="blockedChannels" 
-          id="blockedChannels" 
-          placeholder="@channelname&#10;@anotherchannel&#10;https://youtube.com/@example"
-          style="width: 100%; height: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"
-        ></textarea>
-        <div style="margin-top: 5px;">
-          <button type="button" id="addCurrentChannel" style="padding: 5px 10px; font-size: 12px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;">
-            Block Current Channel
-          </button>
-          <span id="currentChannelStatus" style="margin-left: 10px; font-size: 12px; color: #666;"></span>
+    <div class="container">
+      <div class="hero">
+        <div class="hero-content">
+          <h2>YouTube for Blog Readers</h2>
+            <div class="donate-section">
+            <a href="https://www.buymeacoffee.com/mrdotkg" target="_blank" class="donate-btn coffee-btn">
+              Donate
+            </a> | 
+            <a href="https://github.com/sponsors/mrdotkg" target="_blank" class="donate-btn github-sponsor">
+              Sponsor
+            </a>
+          </div>
         </div>
       </div>
+          <hr>
 
-      <div class="section">
-        <h2>Disable Extension On</h2>
-        <label>
-          <input type="checkbox" name="disableHomePage" id="disableHomePage">
-          Home page
-        </label>
-        <label>
-          <input type="checkbox" name="disableSearchResultPage" id="disableSearchResultPage">
-          Search results page
-        </label>
-        <label>
-          <input type="checkbox" name="disableChannelPage" id="disableChannelPage">
-          Channel pages
-        </label>
-        <label>
-          <input type="checkbox" name="disablePlaylistPage" id="disablePlaylistPage">
-          Playlist pages
-        </label>
-        <label>
-          <input type="checkbox" name="disableWatchPage" id="disableWatchPage">
-          Watch page (sidebar)
-        </label>
-        <label>
-          <input type="checkbox" name="disableSubscriptionsPage" id="disableSubscriptionsPage">
-          Subscriptions page
-        </label>
-        <label>
-          <input type="checkbox" name="disableShortsPage" id="disableShortsPage">
-          Shorts pages
-        </label>
-        <label>
-          <input type="checkbox" name="disableEverywhere" id="disableEverywhere">
-          Everywhere (disable completely)
-        </label>
+        <form>
+        <!-- Quick Disable -->
+        <div class="section disable-everywhere">
+          <h3>Quick Disable</h3>
+          <label>
+            <input type="checkbox" name="disableEverywhere" id="disableEverywhere">
+            Disable extension features
+          </label>
+        </div>
+
+        <!-- Excluded Channels -->
+        <div class="section">
+          <h3>Whitelist Channels</h3>
+          <textarea 
+            name="blockedChannels" 
+            id="blockedChannels" 
+            placeholder="@channel&#10;@another"
+          ></textarea>
+          <div class="button-row">
+            <button type="button" id="addCurrentChannel">Add</button>
+            <button type="button" id="removeCurrentChannel">Remove</button>
+            <button type="button" id="clearAllChannels">Clear</button>
+            <span id="currentChannelStatus"></span>
+          </div>
+        </div>
+
+        <!-- Main Options -->
+        <div class="section">
+          <h3>Settings</h3>
+          <div class="options-grid">
+            <label>
+              <input type="checkbox" name="hideThumbnails" id="hideThumbnails">
+              Hide thumbnails
+            </label>
+            <label>
+              <input type="checkbox" name="hideChannelAvatars" id="hideChannelAvatars">
+              Hide avatars
+            </label>
+            <label>
+              <input type="checkbox" name="showFullVideoTitles" id="showFullVideoTitles">
+              Show full titles
+            </label>
+            <label>
+              <input type="checkbox" name="showWatchProgress" id="showWatchProgress">
+              Watch progress
+            </label>
+            <label>
+              <input type="checkbox" name="disableHomePage" id="disableHomePage">
+              Disable on home page
+            </label>
+            <label>
+              <input type="checkbox" name="disableSearchResultPage" id="disableSearchResultPage">
+              Disable on search page
+            </label>
+            <label>
+              <input type="checkbox" name="disableChannelPage" id="disableChannelPage">
+              Disable on channel pages
+            </label>
+            <label>
+              <input type="checkbox" name="disablePlaylistPage" id="disablePlaylistPage">
+              Disable on playlist pages
+            </label>
+            <label>
+              <input type="checkbox" name="disableWatchPage" id="disableWatchPage">
+              Disable on watch page
+            </label>
+            <label>
+              <input type="checkbox" name="disableSubscriptionsPage" id="disableSubscriptionsPage">
+              Disable on subscriptions
+            </label>
+            <label>
+              <input type="checkbox" name="disableShortsPage" id="disableShortsPage">
+              Disable on shorts
+            </label>
+          </div>
+        </div>
+
+        <div id="status">Preferences loaded</div>
+      </form>
+      <hr>
+      <div class="links">
+        <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext" target="_blank" class="source-link">
+          Source
+        </a> |
+        <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext/issues" target="_blank" class="support-link">
+          Support
+        </a>
       </div>
-
-      <p id="status">✅ Preferences loaded</p>
-    </form>
+    </div>
+    <style>
+      body {
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
+        font-size: 14px;
+      }
+      .options-grid label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .options-grid input[type="checkbox"] {
+        margin: 0;
+        vertical-align: middle;
+      }
+    </style>
     <script src="common.js"></script>
     <script src="options.js"></script>
   </body>

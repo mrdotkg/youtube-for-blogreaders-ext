@@ -25,64 +25,102 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Add current channel button functionality
   const addCurrentChannelBtn = document.getElementById('addCurrentChannel');
+  const removeCurrentChannelBtn = document.getElementById('removeCurrentChannel');
+  const clearAllChannelsBtn = document.getElementById('clearAllChannels');
   const currentChannelStatus = document.getElementById('currentChannelStatus');
-  
-  addCurrentChannelBtn.addEventListener('click', async () => {
+
+  // Get current channel helper function
+  const getCurrentChannel = async () => {
     try {
       const tabs = await browser.tabs.query({ active: true, currentWindow: true });
       const activeTab = tabs[0];
       
-      if (activeTab && activeTab.url && activeTab.url.includes('youtube.com')) {
-        const url = new URL(activeTab.url);
-        const pathname = url.pathname;
-        
-        let channelId = '';
-        if (pathname.startsWith('/@')) {
-          channelId = pathname.split('/')[1]; // Gets @username
-        } else if (pathname.startsWith('/channel/')) {
-          channelId = '@' + pathname.split('/')[2]; // Convert to @format for consistency
-        } else if (pathname.startsWith('/c/')) {
-          channelId = '@' + pathname.split('/')[2]; // Convert to @format for consistency
-        } else if (pathname.startsWith('/user/')) {
-          channelId = '@' + pathname.split('/')[2]; // Convert to @format for consistency
-        } else if (pathname === '/watch') {
-          currentChannelStatus.textContent = 'Please navigate to the channel page to add it to the block list';
-          setTimeout(() => currentChannelStatus.textContent = '', 3000);
-          return;
-        } else {
-          currentChannelStatus.textContent = 'Not on a YouTube channel page';
-          setTimeout(() => currentChannelStatus.textContent = '', 3000);
-          return;
-        }
-        
-        if (channelId) {
-          const textarea = document.forms[0].blockedChannels;
-          const currentChannels = textarea.value.split('\n').filter(c => c.trim());
-          
-          if (!currentChannels.includes(channelId)) {
-            if (textarea.value) {
-              textarea.value += '\n' + channelId;
-            } else {
-              textarea.value = channelId;
-            }
-            currentChannelStatus.textContent = `Added ${channelId} to blocked channels`;
-            
-            // Trigger save
-            document.forms[0].dispatchEvent(new Event('change'));
-          } else {
-            currentChannelStatus.textContent = `${channelId} is already blocked`;
-          }
-          
-          setTimeout(() => currentChannelStatus.textContent = '', 3000);
-        }
-      } else {
-        currentChannelStatus.textContent = 'Not on a YouTube page';
-        setTimeout(() => currentChannelStatus.textContent = '', 3000);
+      if (!activeTab || !activeTab.url || !activeTab.url.includes('youtube.com')) {
+        return { error: 'Not on a YouTube page' };
       }
+
+      const url = new URL(activeTab.url);
+      const pathname = url.pathname;
+      
+      let channelId = '';
+      if (pathname.startsWith('/@')) {
+        channelId = pathname.split('/')[1]; // Gets @username
+      } else if (pathname.startsWith('/channel/')) {
+        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+      } else if (pathname.startsWith('/c/')) {
+        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+      } else if (pathname.startsWith('/user/')) {
+        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+      } else if (pathname === '/watch') {
+        return { error: 'Go to channel page to add/remove' };
+      } else {
+        return { error: 'Not on a channel page' };
+      }
+      
+      return { channelId };
     } catch (error) {
-      console.error('Error adding current channel:', error);
-      currentChannelStatus.textContent = 'Error adding channel';
-      setTimeout(() => currentChannelStatus.textContent = '', 3000);
+      return { error: 'Error getting channel info' };
+    }
+  };
+
+  // Show status message helper
+  const showStatus = (message, isError = false) => {
+    currentChannelStatus.textContent = message;
+    currentChannelStatus.style.color = isError ? '#dc2626' : '#059669';
+    setTimeout(() => {
+      currentChannelStatus.textContent = '';
+      currentChannelStatus.style.color = '#666';
+    }, 3000);
+  };
+  
+  addCurrentChannelBtn.addEventListener('click', async () => {
+    const result = await getCurrentChannel();
+    if (result.error) {
+      showStatus(result.error, true);
+      return;
+    }
+
+    const textarea = document.forms[0].blockedChannels;
+    const currentChannels = textarea.value.split('\n').filter(c => c.trim());
+    
+    if (!currentChannels.includes(result.channelId)) {
+      if (textarea.value) {
+        textarea.value += '\n' + result.channelId;
+      } else {
+        textarea.value = result.channelId;
+      }
+      showStatus(`Added ${result.channelId}`);
+      document.forms[0].dispatchEvent(new Event('change'));
+    } else {
+      showStatus(`${result.channelId} already excluded`, true);
+    }
+  });
+
+  removeCurrentChannelBtn.addEventListener('click', async () => {
+    const result = await getCurrentChannel();
+    if (result.error) {
+      showStatus(result.error, true);
+      return;
+    }
+
+    const textarea = document.forms[0].blockedChannels;
+    const currentChannels = textarea.value.split('\n').filter(c => c.trim());
+    
+    if (currentChannels.includes(result.channelId)) {
+      const newChannels = currentChannels.filter(c => c !== result.channelId);
+      textarea.value = newChannels.join('\n');
+      showStatus(`Removed ${result.channelId}`);
+      document.forms[0].dispatchEvent(new Event('change'));
+    } else {
+      showStatus(`${result.channelId} not in list`, true);
+    }
+  });
+
+  clearAllChannelsBtn.addEventListener('click', () => {
+    if (confirm('Clear all excluded channels?')) {
+      document.forms[0].blockedChannels.value = '';
+      showStatus('Cleared all channels');
+      document.forms[0].dispatchEvent(new Event('change'));
     }
   });
 
@@ -142,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       // Save immediately for responsiveness
       await browser.storage.local.set(optionsToSave);
-      status.textContent = `✅ Saved preferences`;
+      status.textContent = `Saved preferences`;
       console.log('Options page - Successfully saved');
     } catch (error) {
       console.error('Options page - Save error:', error);
@@ -157,7 +195,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Add individual listeners to checkboxes for extra reliability
   const checkboxes = document.forms[0].querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('click', saveOptions);
-    checkbox.addEventListener('change', saveOptions);
+    checkbox.addEventListener('click', (e) => {
+      console.log('Checkbox clicked:', e.target.name, 'checked:', e.target.checked);
+      saveOptions(e);
+    });
+    checkbox.addEventListener('change', (e) => {
+      console.log('Checkbox changed:', e.target.name, 'checked:', e.target.checked);
+      saveOptions(e);
+    });
+  });
+  
+  // Disable all form fields except 'disableEverywhere' when it is checked
+  const form = document.forms[0];
+  const disableEverywhereCheckbox = form.disableEverywhere;
+
+  function setFormDisabled(disabled) {
+    Array.from(form.elements).forEach(el => {
+      if (el !== disableEverywhereCheckbox) {
+        el.disabled = disabled;
+      }
+    });
+  }
+
+  // Initial state
+  setFormDisabled(disableEverywhereCheckbox.checked);
+
+  disableEverywhereCheckbox.addEventListener('change', function() {
+    setFormDisabled(this.checked);
   });
 });

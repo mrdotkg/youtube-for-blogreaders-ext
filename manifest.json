@@ -12,7 +12,7 @@
   },
   "icons": {
     "48": "img/icon48.png",
-    "128": "img/icon128.png",
+    "144": "img/icon144.png",
     "512": "img/icon512.png"
   },
   "content_scripts": [
