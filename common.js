@@ -54,9 +54,7 @@ const loadOptions = async () => {
     browser.storage.local.get(null, resolve);
   });
 
-  // Debug logging to see what's actually stored
-  console.log('YouTube for Blog Readers - Stored options from storage:', storedOptions);
-
+  
   // Merge with defaults, but prioritize stored values
   const options = {
     hideChannelAvatars: storedOptions.hideChannelAvatars !== undefined ? storedOptions.hideChannelAvatars : defaultOptions.hideChannelAvatars,
@@ -77,9 +75,7 @@ const loadOptions = async () => {
     }
   };
 
-  console.log('YouTube for Blog Readers - Final merged options:', options);
-  console.log('YouTube for Blog Readers - hideThumbnails specifically:', options.hideThumbnails, typeof options.hideThumbnails);
-
+  
   return options;
 }
 

@@ -1,11 +1,9 @@
 /** @typedef {import("./common")} */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('Options popup - DOM loaded');
   
   // Load existing settings
   const options = await loadOptions();
-  console.log('Options popup - Loaded options:', options);
   
   document.forms[0].hideThumbnails.checked = options.hideThumbnails !== false;
   document.forms[0].hideChannelAvatars.checked = options.hideChannelAvatars || false;
@@ -22,7 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.forms[0].enableShortsPage.checked = !options.disabledOnPages.shorts;
   document.forms[0].enableEverywhere.checked = !options.disabledOnPages.everywhere;
 
-  console.log('Options popup - Form populated successfully');
 
   // Add current channel button functionality
   const addCurrentChannelBtn = document.getElementById('addCurrentChannel');
@@ -127,7 +124,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save on change - with multiple event types for better responsiveness
   const saveOptions = async (event) => {
-    console.log('Options page - Save triggered by:', event.type, 'on element:', event.target.name || event.target.id);
     
     const status = document.getElementById('status');
     status.textContent = `⏳ Saving...`;
@@ -177,13 +173,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       },
     };
 
-    console.log('Options page - Saving options:', optionsToSave);
 
     try {
       // Save immediately for responsiveness
       await browser.storage.local.set(optionsToSave);
       status.textContent = `Saved preferences`;
-      console.log('Options page - Successfully saved');
     } catch (error) {
       console.error('Options page - Save error:', error);
       status.textContent = `❌ Error saving`;
@@ -198,11 +192,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const checkboxes = document.forms[0].querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(checkbox => {
     checkbox.addEventListener('click', (e) => {
-      console.log('Checkbox clicked:', e.target.name, 'checked:', e.target.checked);
       saveOptions(e);
     });
     checkbox.addEventListener('change', (e) => {
-      console.log('Checkbox changed:', e.target.name, 'checked:', e.target.checked);
       saveOptions(e);
     });
   });

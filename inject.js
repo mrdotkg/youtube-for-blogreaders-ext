@@ -293,7 +293,6 @@ const initializeExtension = () => {
     updateElem();
     setupMutationObserver();
   } else {
-    console.log('YouTube for Blog Readers - Waiting for common.js to load...');
     setTimeout(initializeExtension, 50);
   }
 };
