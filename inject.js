@@ -3,13 +3,21 @@ if (typeof browser === 'undefined') {
   window.browser = window.chrome;
 }
 
+
 const css = {
 hideThumbnails: `ytd-thumbnail,ytd-playlist-thumbnail,.rich-thumbnail,#thumbnail,#video-preview,.shortsLockupViewModelHostThumbnailContainer,.yt-lockup-view-model-wiz__content-image,#thumbnail-container,.ytd-display-ad-renderer #media-container{display:none!important}
 ytd-rich-item-renderer,ytd-grid-video-renderer,ytd-video-renderer,ytd-compact-video-renderer{margin-top:-8px!important}
 .yt-lockup-view-model-wiz,yt-lockup-view-model{padding-top:4px!important}
 ytd-rich-grid-media{margin-top:-6px!important}`,
 
-hideChannelAvatars: `ytd-channel-avatar,[class*="avatar"],img.yt-img-shadow[src*="channel"]:not([src*="banner"]){display:none!important}
+hideChannelAvatars: `ytd-channel-avatar,[class*="avatar"],img.yt-img-shadow[src*="channel"]:not([src*="banner"]),
+/* Sidebar/Guide Avatars */
+ytd-guide-entry-renderer yt-img-shadow img,
+ytd-guide-entry-renderer yt-img-shadow,
+ytd-guide-entry-renderer .yt-img-shadow,
+ytd-guide-entry-renderer .guide-icon,
+ytd-guide-entry-renderer .guide-entry-badge
+{display:none!important}
 .yt-lockup-metadata-view-model-wiz__text-container,#details,#meta,#metadata{margin-left:0!important;padding-left:0!important}
 ytd-comment-thread-renderer ytd-channel-avatar,ytd-comment-renderer ytd-channel-avatar,ytd-c4-tabbed-header-renderer ytd-channel-avatar,ytd-channel-header-renderer ytd-channel-avatar,ytd-video-owner-renderer.ytd-watch-metadata ytd-channel-avatar{display:block!important}`,
 
@@ -74,11 +82,15 @@ const updateElem = async () => {
       document.documentElement.appendChild(elem);
     }
 
-    if (options.hideThumbnails && !isDisabled) {
-      setTimeout(() => extractDurations(), 1000);
-      setTimeout(() => extractDurations(), 3000);
+    // Always call extractDurations, it will handle show/hide and cleanup
+    if (options.hideThumbnails && !isDisabled && options.showDurationWhenHidden) {
+      setTimeout(() => extractDurations(true), 1000);
+      setTimeout(() => extractDurations(true), 3000);
+    } else if (options.hideThumbnails && !isDisabled && !options.showDurationWhenHidden) {
+      setTimeout(() => extractDurations(false), 1000);
+      setTimeout(() => extractDurations(false), 3000);
     }
-    
+
     if (options.showWatchProgress && !isDisabled) {
       setTimeout(extractWatchProgress, 1000);
       setTimeout(extractWatchProgress, 3000);
@@ -89,36 +101,52 @@ const updateElem = async () => {
   }
 };
 
-const extractDurations = () => {
+const extractDurations = (showDuration = true) => {
   document.querySelectorAll('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model').forEach((thumbnail) => {
-    if (thumbnail.querySelector('.duration-added')) return;
-    
+    // Always remove existing duration-added elements and their delimiters first
+    thumbnail.querySelectorAll('.duration-added').forEach(span => {
+      // Remove the delimiter before the duration if present
+      if (span.previousSibling && span.previousSibling.classList && span.previousSibling.classList.contains('yt-content-metadata-view-model-wiz__delimiter')) {
+        span.previousSibling.remove();
+      }
+      span.remove();
+    });
+
+    if (!showDuration) return;
+
     const durationElement = thumbnail.querySelector('.badge-shape-wiz__text, .ytd-thumbnail-overlay-time-status-renderer span');
     if (!durationElement) return;
-    
+
     const duration = durationElement.textContent?.trim();
     if (!duration?.includes(':') || duration.length > 15) return;
-    
+
     const metadataTargets = [
       '.yt-content-metadata-view-model-wiz__metadata-row:has(.yt-content-metadata-view-model-wiz__delimiter)',
       '.yt-content-metadata-view-model-wiz__metadata-row:not(:first-child)',
       '#metadata-line'
     ];
-    
+
     for (const selector of metadataTargets) {
       const metadataContainer = thumbnail.querySelector(selector);
-      if (metadataContainer && !metadataContainer.querySelector('.duration-added')) {
-        const delimiter = document.createElement('span');
-        delimiter.setAttribute('aria-hidden', 'true');
-        delimiter.className = 'yt-content-metadata-view-model-wiz__delimiter';
-        delimiter.textContent = ' • ';
+      if (metadataContainer) {
+        // Only add delimiter if the last child is not already a delimiter
+        let addDelimiter = true;
+        if (metadataContainer.lastChild && metadataContainer.lastChild.classList && metadataContainer.lastChild.classList.contains('yt-content-metadata-view-model-wiz__delimiter')) {
+          addDelimiter = false;
+        }
+        if (addDelimiter && metadataContainer.childNodes.length > 0) {
+          const delimiter = document.createElement('span');
+          delimiter.setAttribute('aria-hidden', 'true');
+          delimiter.className = 'yt-content-metadata-view-model-wiz__delimiter';
+          delimiter.textContent = ' • ';
+          metadataContainer.appendChild(delimiter);
+        }
 
         const durationSpan = document.createElement('span');
         durationSpan.className = 'yt-core-attributed-string yt-content-metadata-view-model-wiz__metadata-text duration-added';
         durationSpan.textContent = duration;
         durationSpan.style.color = 'var(--yt-spec-text-secondary)';
 
-        metadataContainer.appendChild(delimiter);
         metadataContainer.appendChild(durationSpan);
         break;
       }
@@ -129,15 +157,16 @@ const extractDurations = () => {
 const extractWatchProgress = () => {
   document.querySelectorAll('ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model').forEach((thumbnail) => {
     if (thumbnail.querySelector('.ybr-progress-container')) return;
-    
+
+    let progressPercent = 0;
+    let found = false;
+
+    // Standard YouTube progress bar selectors
     const progressSelectors = [
       'ytd-thumbnail-overlay-resume-playback-renderer #progress',
       '[id="progress"]',
       '.style-scope.ytd-thumbnail-overlay-resume-playback-renderer[style*="width"]'
     ];
-    
-    let progressPercent = 0;
-    
     for (const selector of progressSelectors) {
       const progressElement = thumbnail.querySelector(selector);
       if (progressElement) {
@@ -145,30 +174,57 @@ const extractWatchProgress = () => {
         const widthMatch = style.match(/width:\s*(\d+(?:\.\d+)?)%/);
         if (widthMatch) {
           progressPercent = parseFloat(widthMatch[1]);
+          found = true;
           break;
         }
       }
     }
-    
+
+    // Sidebar/compact progress bar (new YouTube DOM)
+    if (!found) {
+      // Look for .ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment inside the thumbnail
+      const sidebarProgress = thumbnail.querySelector('.ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment');
+      if (sidebarProgress) {
+        const style = sidebarProgress.getAttribute('style') || '';
+        const widthMatch = style.match(/width:\s*(\d+(?:\.\d+)?)%/);
+        if (widthMatch) {
+          progressPercent = parseFloat(widthMatch[1]);
+          found = true;
+        }
+      }
+    }
+
     if (progressPercent < 2) return;
-    
-    const titleContainer = thumbnail.querySelector('#video-title, h3, .yt-lockup-view-model-wiz__content-text');
+
+    // Try to find the best place to insert the progress bar
+    let titleContainer = thumbnail.querySelector('#video-title, h3, .yt-lockup-view-model-wiz__content-text');
+    if (!titleContainer) {
+      // For sidebar, try the sidebar title
+      titleContainer = thumbnail.querySelector('.yt-lockup-metadata-view-model-wiz__heading-reset, .yt-lockup-metadata-view-model-wiz__title');
+      if (titleContainer && titleContainer.parentNode && titleContainer.parentNode.parentNode) {
+        // Use the parent of the title link (h3) for insertion
+        titleContainer = titleContainer.parentNode;
+      }
+    }
     if (!titleContainer) return;
-    
+
     const progressContainer = document.createElement('div');
     progressContainer.className = 'ybr-progress-container';
-    
+
     const progressBar = document.createElement('div');
     progressBar.className = 'ybr-progress-bar';
-    
+
     const progressFill = document.createElement('div');
     progressFill.className = 'ybr-progress-fill';
     progressFill.style.width = `${progressPercent}%`;
-    
+
     progressBar.appendChild(progressFill);
     progressContainer.appendChild(progressBar);
-    
-    titleContainer.parentNode.insertBefore(progressContainer, titleContainer.nextSibling);
+
+    // Insert after the title container
+    if (titleContainer.parentNode) {
+      titleContainer.parentNode.insertBefore(progressContainer, titleContainer.nextSibling);
+    }
   });
 };
 
@@ -201,7 +257,7 @@ setInterval(async () => {
         (options.disabledOnPages.subscriptions && currentPath === '/feed/subscriptions') ||
         (options.disabledOnPages.shorts && (currentPath === '/feed/subscriptions/shorts' || currentPath.startsWith('/shorts')));
 
-      if (options.hideThumbnails && !isDisabled) extractDurations();
+  if (options.hideThumbnails && !isDisabled && options.showDurationWhenHidden) extractDurations();
       if (options.showWatchProgress && !isDisabled) extractWatchProgress();
     } catch (error) {
       // Silently ignore errors in periodic updates
@@ -209,10 +265,33 @@ setInterval(async () => {
   }
 }, 2000);
 
+
+// MutationObserver to detect new elements (e.g., thumbnails) and call updateElem
+let mutationObserver = null;
+function setupMutationObserver() {
+  if (mutationObserver) return; // Prevent multiple observers
+  // Try to observe the main content area, fallback to body
+  const target = document.querySelector('ytd-app') || document.body;
+  if (!target) return;
+  mutationObserver = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+        updateElem();
+        break;
+      }
+    }
+  });
+  mutationObserver.observe(target, {
+    childList: true,
+    subtree: true
+  });
+}
+
 // Wait a bit to ensure common.js is loaded, then initialize
 const initializeExtension = () => {
   if (typeof loadOptions === 'function' && typeof isCurrentChannelBlocked === 'function') {
     updateElem();
+    setupMutationObserver();
   } else {
     console.log('YouTube for Blog Readers - Waiting for common.js to load...');
     setTimeout(initializeExtension, 50);
