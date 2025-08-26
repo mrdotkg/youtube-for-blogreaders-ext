@@ -43,7 +43,10 @@ const updateElem = async () => {
     }
 
     const options = await loadOptions();
-    const isChannelBlocked = isCurrentChannelBlocked(options.blockedChannels);
+    // Only check for blocked channel if whitelist is enabled
+    const isChannelBlocked = options.enableWhitelistChannels
+      ? isCurrentChannelBlocked(options.blockedChannels)
+      : false;
     const currentPath = window.location.pathname;
     const isHomePage = currentPath === '/' || currentPath === '';
     
@@ -69,7 +72,7 @@ const updateElem = async () => {
       cssToApply += '.duration-added,.ybr-progress-container{display:none!important}';
     }
     
-    if (options.blockedChannels?.length && !isDisabled) {
+    if (options.enableWhitelistChannels && options.blockedChannels?.length && !isDisabled) {
       const selectors = options.blockedChannels.map(ch => 
         `a[href*="/${ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"]`).join(',');
       cssToApply += `ytd-rich-item-renderer:has(${selectors}),ytd-grid-video-renderer:has(${selectors}),ytd-video-renderer:has(${selectors}),ytd-compact-video-renderer:has(${selectors}),yt-lockup-view-model:has(${selectors}){display:none!important}`;
@@ -244,7 +247,10 @@ setInterval(async () => {
   if (typeof loadOptions === 'function' && typeof isCurrentChannelBlocked === 'function') {
     try {
       const options = await loadOptions();
-      const isChannelBlocked = isCurrentChannelBlocked(options.blockedChannels);
+      // Only check for blocked channel if whitelist is enabled
+      const isChannelBlocked = options.enableWhitelistChannels
+        ? isCurrentChannelBlocked(options.blockedChannels)
+        : false;
       const currentPath = window.location.pathname;
       const isHomePage = currentPath === '/' || currentPath === '';
       

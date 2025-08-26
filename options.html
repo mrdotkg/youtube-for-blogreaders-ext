@@ -1,188 +1,177 @@
 <!DOCTYPE html>
+
 <head>
-   <style>
-      body {
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
-      font-size: 14px;
-      width: 100%;
-      margin: 0;
-      height: 420px !important;
-      overflow: hidden !important;
-      background: #fff;
-      color: #222;
-      }
-      @media (prefers-color-scheme: dark) {
-      body {
-      background: #181818 !important;
-      color: #f1f1f1 !important;
-      }
-      .container {
-      background: #181818 !important;
-      color: #f1f1f1 !important;
-      }
-      input, textarea, select, button {
-      background: #232323 !important;
-      color: #f1f1f1 !important;
-      border-color: #444 !important;
-      }
-      hr {
-      border-color: #333 !important;
-      }
-      }
-      @media (prefers-color-scheme: light) {
-      body {
-      background: #fff !important;
-      color: #222 !important;
-      }
-      .container {
-      background: #fff !important;
-      color: #222 !important;
-      }
-      input, textarea, select, button {
-      background: #fff !important;
-      color: #222 !important;
-      border-color: #ccc !important;
-      }
-      hr {
-      border-color: #eee !important;
-      }
-      }
-      .container {
-      padding: 16px;
-      width: 250px;
-      height: 100%;
-      box-sizing: border-box;
-      overflow-y: auto;
-      }
-      .options-grid label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      }
-      .options-grid input[type="checkbox"] {
-      margin: 0;
-      vertical-align: middle;
-      }
-      textarea#blockedChannels {
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box;
-      resize: vertical;
-      }
-      a {
-      color: rgb(0, 255, 255);
-      display: block;
-      }
-      #status{
-        color: rgb(1, 255, 1);
-      }
-   </style>
+    <style>
+        body {
+          padding: 0;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
+          font-size: 14px;
+          width: 100%;
+          margin: 0;
+          height: 520px !important;
+          overflow: hidden !important;
+          background: #fff;
+          color: #222;
+          }
+          @media (prefers-color-scheme: dark) {
+          body {
+          background: #181818 !important;
+          color: #f1f1f1 !important;
+          }
+          .container {
+          background: #181818 !important;
+          color: #f1f1f1 !important;
+          }
+          input, textarea, select, button {
+          background: #232323 !important;
+          color: #f1f1f1 !important;
+          border-color: #444 !important;
+          }
+          hr {
+          border-color: #333 !important;
+          }
+          }
+          @media (prefers-color-scheme: light) {
+          body {
+          background: #fff !important;
+          color: #222 !important;
+          }
+          .container {
+          background: #fff !important;
+          color: #222 !important;
+          }
+          input, textarea, select, button {
+          background: #fff !important;
+          color: #222 !important;
+          border-color: #ccc !important;
+          }
+          hr {
+          border-color: #eee !important;
+          }
+          }
+          .container {
+          padding: 16px;
+          width: 300px;
+          height: 100%;
+          box-sizing: border-box;
+          overflow-y: auto;
+          }
+          .options-grid label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+          }
+          .options-grid input[type="checkbox"] {
+          margin: 0;
+          vertical-align: middle;
+          }
+          textarea#blockedChannels {
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          resize: vertical;
+          }
+          a {
+          color: rgb(0, 255, 255);
+          display: block;
+          }
+          #status{
+            color: rgb(1, 255, 1);
+          }
+    </style>
 </head>
+
 <body>
-   <div class="container">
-      <div class="hero">
-         <div class="hero-content">
-            <h2>YouTube for Blog Readers - Settings</h2>
-         </div>
-      </div>
-      <hr>
-      <form>
-         <!-- Quick Enable/Disable -->
-         <div class="section enable-everywhere">
-            <h3>Quick Enable / Disable</h3>
-            <label>
-            <input type="checkbox" name="enableEverywhere" id="enableEverywhere">
-            Enable all extension features
-            </label>
-         </div>
-         <!-- Excluded Channels -->
-         <div class="section">
-            <h3>Whitelist Channels</h3>
-            <textarea 
-               name="blockedChannels" 
-               id="blockedChannels" 
-               placeholder="@channel&#10;@another"
-               ></textarea>
-            <div class="button-row">
-               <button type="button" id="addCurrentChannel">Add</button>
-               <button type="button" id="removeCurrentChannel">Remove</button>
-               <button type="button" id="clearAllChannels">Clear</button>
-               <span id="currentChannelStatus"></span>
+    <div class="container">
+        <div class="hero">
+            <div class="hero-content">
+                Settings - YouTube for Blog Readers
             </div>
-         </div>
-         <!-- Main Options -->
-         <div class="section">
-            <h3>Settings</h3>
-            <div class="options-grid">
-               <label>
-               <input type="checkbox" name="hideThumbnails" id="hideThumbnails">
-               Hide thumbnails
-               </label>
-               <label>
-               <input type="checkbox" name="hideChannelAvatars" id="hideChannelAvatars">
-               Hide avatars
-               </label>
-               <label>
-               <input type="checkbox" name="showFullVideoTitles" id="showFullVideoTitles">
-               Show full titles
-               </label>
-               <label>
-               <input type="checkbox" name="showWatchProgress" id="showWatchProgress">
-               Show watch progress
-               </label>
-               <label>
-               <input type="checkbox" name="showDurationWhenHidden" id="showDurationWhenHidden">
-               Show time duration
-               </label>
-               <hr>
-               <label>
-               <input type="checkbox" name="enableHomePage" id="enableHomePage">
-               Enable on home
-               </label>
-               <label>
-               <input type="checkbox" name="enableSearchResultPage" id="enableSearchResultPage">
-               Enable on search
-               </label>
-               <label>
-               <input type="checkbox" name="enableChannelPage" id="enableChannelPage">
-               Enable on channel
-               </label>
-               <label>
-               <input type="checkbox" name="enablePlaylistPage" id="enablePlaylistPage">
-               Enable on playlist
-               </label>
-               <label>
-               <input type="checkbox" name="enableWatchPage" id="enableWatchPage">
-               Enable on watch
-               </label>
-               <label>
-               <input type="checkbox" name="enableSubscriptionsPage" id="enableSubscriptionsPage">
-               Enable on subscriptions
-               </label>
-               <label>
-               <input type="checkbox" name="enableShortsPage" id="enableShortsPage">
-               Enable on shorts
-               </label>
+        </div>
+        <hr>
+        <form>
+            <!-- Main Options -->
+            <div class="section">
+                <!-- <h3>Settings</h3> -->
+                <div class="options-grid">
+                    <!-- <h5>Quick Enable / Disable</h5> -->
+                    <label>
+                        <input type="checkbox" name="enableEverywhere" id="enableEverywhere"> Enable all extension features
+                    </label>
+                    <hr>
+                    <label>
+                        <input type="checkbox" name="hideThumbnails" id="hideThumbnails"> Hide thumbnails
+                    </label>
+                    <label>
+                        <input type="checkbox" name="hideChannelAvatars" id="hideChannelAvatars"> Hide avatars
+                    </label>
+                    <label>
+                        <input type="checkbox" name="showFullVideoTitles" id="showFullVideoTitles"> Show full titles
+                    </label>
+                    <label>
+                        <input type="checkbox" name="showWatchProgress" id="showWatchProgress"> Show watch progress
+                    </label>
+                    <label>
+                        <input type="checkbox" name="showDurationWhenHidden" id="showDurationWhenHidden"> Show time duration
+                    </label>
+                    <hr>
+                    <label>
+                        <input type="checkbox" name="enableHomePage" id="enableHomePage"> Enable on home
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enableSearchResultPage" id="enableSearchResultPage"> Enable on search
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enableChannelPage" id="enableChannelPage"> Enable on channel
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enablePlaylistPage" id="enablePlaylistPage"> Enable on playlist
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enableWatchPage" id="enableWatchPage"> Enable on watch
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enableSubscriptionsPage" id="enableSubscriptionsPage"> Enable on subscriptions
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enableShortsPage" id="enableShortsPage"> Enable on shorts
+                    </label>
+
+                    <hr>
+                    <!-- Excluded Channels -->
+
+                    <label>
+                        <input type="checkbox" name="enableWhitelistChannels" id="enableWhitelistChannels" checked> Whitelist Channels
+                    </label>
+                    <textarea name="blockedChannels" id="blockedChannels" placeholder="@channel&#10;@another"></textarea>
+                    <div class="button-row">
+                        <button type="button" id="addCurrentChannel">Add</button>
+                        <button type="button" id="removeCurrentChannel">Remove</button>
+                        <button type="button" id="clearAllChannels">Clear</button>
+                        <span id="currentChannelStatus"></span>
+                    </div>
+                </div>
             </div>
-         </div>
-         <div id="status">Preferences loaded</div>
-      </form>
-      <hr>
-      <div class="links">
-         <a href="https://github.com/sponsors/mrdotkg" target="_blank" class="donate-btn github-sponsor">
+
+        </form>
+        <hr>
+        <div id="status">Preferences loaded</div>
+
+        <div class="links">
+            <a href="https://github.com/sponsors/mrdotkg" target="_blank" class="donate-btn github-sponsor">
          Sponsor this project
          </a>
-         <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext" target="_blank" class="source-link">
+            <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext" target="_blank" class="source-link">
          Modify the source code
          </a>
-         <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext/issues" target="_blank" class="support-link">
+            <a href="https://github.com/mrdotkg/youtube-for-blogreaders-ext/issues" target="_blank" class="support-link">
          Support this project
          </a>
-      </div>
-   </div>
-   <script src="common.js"></script>
-   <script src="options.js"></script>
+        </div>
+    </div>
+    <script src="common.js"></script>
+    <script src="options.js"></script>
 </body>
+
 </html>

@@ -11,6 +11,7 @@ if (typeof globalThis.browser === "undefined") {
  *   hideThumbnails: boolean,
  *   showWatchProgress: boolean,
  *   blockedChannels: string[],
+ *   enableWhitelistChannels: boolean,
  *   showDurationWhenHidden: boolean,
  *   disabledOnPages: {
  *     home: boolean,
@@ -33,6 +34,7 @@ const defaultOptions = {
   showWatchProgress: true, // Default to enabled - show watch progress
   showDurationWhenHidden: true, // Default to enabled - show duration
   blockedChannels: [], // Array of channel handles/IDs where extension is disabled
+  enableWhitelistChannels: true, // Only apply whitelisting if enabled
   disabledOnPages: {
     home: false,
     results: false,
@@ -62,7 +64,8 @@ const loadOptions = async () => {
     hideThumbnails: storedOptions.hideThumbnails !== undefined ? storedOptions.hideThumbnails : defaultOptions.hideThumbnails,
     showWatchProgress: storedOptions.showWatchProgress !== undefined ? storedOptions.showWatchProgress : defaultOptions.showWatchProgress,
     showDurationWhenHidden: storedOptions.showDurationWhenHidden !== undefined ? storedOptions.showDurationWhenHidden : defaultOptions.showDurationWhenHidden,
-    blockedChannels: storedOptions.blockedChannels || defaultOptions.blockedChannels,
+  blockedChannels: storedOptions.blockedChannels || defaultOptions.blockedChannels,
+  enableWhitelistChannels: storedOptions.enableWhitelistChannels !== undefined ? storedOptions.enableWhitelistChannels : defaultOptions.enableWhitelistChannels,
     disabledOnPages: {
       home: storedOptions.disabledOnPages?.home !== undefined ? storedOptions.disabledOnPages.home : defaultOptions.disabledOnPages.home,
       results: storedOptions.disabledOnPages?.results !== undefined ? storedOptions.disabledOnPages.results : defaultOptions.disabledOnPages.results,

@@ -1,6 +1,27 @@
 /** @typedef {import("./common")} */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Whitelist UI controls
+  const whitelistCheckbox = document.getElementById('enableWhitelistChannels');
+  const blockedChannelsTextarea = document.getElementById('blockedChannels');
+  const channelButtons = [
+    document.getElementById('addCurrentChannel'),
+    document.getElementById('removeCurrentChannel'),
+    document.getElementById('clearAllChannels')
+  ];
+
+  function setWhitelistControlsEnabled(enabled) {
+    blockedChannelsTextarea.disabled = !enabled;
+    channelButtons.forEach(btn => btn.disabled = !enabled);
+  }
+
+  // Set initial state
+  setWhitelistControlsEnabled(whitelistCheckbox.checked);
+
+  // Update on toggle
+  whitelistCheckbox.addEventListener('change', function() {
+    setWhitelistControlsEnabled(this.checked);
+  });
   
   // Load existing settings
   const options = await loadOptions();
@@ -11,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.forms[0].showWatchProgress.checked = options.showWatchProgress || false;
   document.forms[0].showDurationWhenHidden.checked = options.showDurationWhenHidden || false;
   document.forms[0].blockedChannels.value = (options.blockedChannels || []).join('\n');
+  document.forms[0].enableWhitelistChannels.checked = options.enableWhitelistChannels || false;
   document.forms[0].enableHomePage.checked = !options.disabledOnPages.home;
   document.forms[0].enableSearchResultPage.checked = !options.disabledOnPages.results;
   document.forms[0].enableChannelPage.checked = !options.disabledOnPages.channel;
@@ -42,19 +64,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       let channelId = '';
       if (pathname.startsWith('/@')) {
-        channelId = pathname.split('/')[1]; // Gets @username
+        // e.g. /@username
+        channelId = pathname.split('/')[1]; // @username
       } else if (pathname.startsWith('/channel/')) {
-        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+        // e.g. /channel/UCxxxx
+        channelId = 'channel/' + pathname.split('/')[2];
       } else if (pathname.startsWith('/c/')) {
-        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+        // e.g. /c/username
+        channelId = 'c/' + pathname.split('/')[2];
       } else if (pathname.startsWith('/user/')) {
-        channelId = '@' + pathname.split('/')[2]; // Convert to @format
+        // e.g. /user/username
+        channelId = 'user/' + pathname.split('/')[2];
       } else if (pathname === '/watch') {
         return { error: 'Go to channel page to add/remove' };
       } else {
         return { error: 'Not on a channel page' };
       }
-      
       return { channelId };
     } catch (error) {
       return { error: 'Error getting channel info' };
@@ -161,6 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       showWatchProgress: document.forms[0].showWatchProgress.checked,
       showDurationWhenHidden: document.forms[0].showDurationWhenHidden.checked,
       blockedChannels: blockedChannels,
+      enableWhitelistChannels: document.forms[0].enableWhitelistChannels.checked,
       disabledOnPages: {
         home: !document.forms[0].enableHomePage.checked,
         results: !document.forms[0].enableSearchResultPage.checked,
