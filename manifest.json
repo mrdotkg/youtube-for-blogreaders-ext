@@ -2,7 +2,15 @@
   "manifest_version": 3,
   "version": "3.1.0",
   "name": "YouTube for Blog Readers",
-  "description": "Transform YouTube into a text-focused, blog-like reading experience - hide thumbnails but show video duration and watch progress.",
+  "description": "Hide YouTube thumbnails, show full video titles, display video duration and watch progress. Make YouTube text-focused, distraction-free, and blog-like. Hide video previews, remove channel avatars, and more.",
+  "keywords": [
+    "hide thumbnail", "hide thumbnails", "remove thumbnail", "remove thumbnails", "no thumbnail", "no thumbnails", "hide video thumbnail", "hide video thumbnails", "remove video thumbnail", "remove video thumbnails",
+    "show full title", "show full video title", "show full titles", "show full video titles", "expand video title", "expand video titles", "full video title", "full video titles",
+    "show duration", "show video duration", "display duration", "display video duration", "video duration",
+    "show watch progress", "display watch progress", "video progress bar", "watch progress bar",
+    "hide channel avatar", "remove channel avatar", "hide avatars", "remove avatars", "no avatar", "no avatars",
+    "distraction free", "minimal youtube", "text only youtube", "blog like youtube", "youtube reader", "youtube blog reader", "youtube for blog readers"
+  ],
   "homepage_url": "https://github.com/mrdotkg/youtube-blog-readers-ext",
   "browser_specific_settings": {
     "gecko": {

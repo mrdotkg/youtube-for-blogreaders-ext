@@ -4,11 +4,34 @@ if (typeof browser === 'undefined') {
 }
 
 
+
 const css = {
-hideThumbnails: `ytd-thumbnail,ytd-playlist-thumbnail,.rich-thumbnail,#thumbnail,#video-preview,.shortsLockupViewModelHostThumbnailContainer,.yt-lockup-view-model-wiz__content-image,#thumbnail-container,.ytd-display-ad-renderer #media-container{display:none!important}
-ytd-rich-item-renderer,ytd-grid-video-renderer,ytd-video-renderer,ytd-compact-video-renderer{margin-top:-8px!important}
+hideThumbnails: `
+ytd-thumbnail,
+ytd-playlist-thumbnail,
+.rich-thumbnail,
+#thumbnail,
+#video-preview,
+.shortsLockupViewModelHostThumbnailContainer,
+.yt-lockup-view-model-wiz__content-image,
+#thumbnail-container,
+.ytd-display-ad-renderer #media-container,
+/* Only hide the thumbnail image/container, not metadata or titles */
+.yt-lockup-view-model__content-image,
+ytd-rich-item-renderer yt-thumbnail-view-model,
+ytd-rich-item-renderer .ytThumbnailViewModelImage,
+ytd-rich-item-renderer img.ytCoreImageHost,
+ytd-rich-item-renderer img.ytCoreImageFillParentHeight,
+ytd-rich-item-renderer img.ytCoreImageFillParentWidth,
+ytd-rich-item-renderer yt-img-shadow img,
+ytd-rich-item-renderer yt-img-shadow,
+ytd-rich-item-renderer .yt-img-shadow,
+ytd-rich-item-renderer .yt-lockup-view-model__content-image img
+{display:none!important}
+
 .yt-lockup-view-model-wiz,yt-lockup-view-model{padding-top:4px!important}
-ytd-rich-grid-media{margin-top:-6px!important}`,
+ytd-rich-grid-media{margin-top:-6px!important}
+`,
 
 hideChannelAvatars: `ytd-channel-avatar,[class*="avatar"],img.yt-img-shadow[src*="channel"]:not([src*="banner"]),
 /* Sidebar/Guide Avatars */
